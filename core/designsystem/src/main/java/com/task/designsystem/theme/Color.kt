@@ -1,4 +1,4 @@
-package com.task.moviebrowser.ui.theme
+package com.task.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
