@@ -21,4 +21,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "Movie Browser"
 include(":app")
- 
+include(":data")
+include(":core:designsystem")
+include(":core:model")
+include(":core:network")
+include(":core:ui")
+include(":feature:saved")
+include(":feature:movie-details")
+include(":feature:movies")
