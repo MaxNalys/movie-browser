@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.task.designsystem.constants.Paddings.LARGE_PADDING
@@ -34,7 +35,10 @@ fun SavedMoviesScreen(
 
         IconButton(
             onClick = onBack,
-            modifier = Modifier.padding(16.dp).align(Alignment.TopStart)
+            modifier = Modifier
+                .padding(LARGE_PADDING)
+                .align(Alignment.TopStart)
+                .zIndex(1f)
         ) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,

@@ -72,7 +72,7 @@ fun MoviesListScreen(
                 LazyColumn(
                     state = listState,
                     contentPadding = PaddingValues(
-                        top = 45.dp,
+                        top = 80.dp,
                         start = 50.dp,
                         end = LARGE_PADDING,
                         bottom = LARGE_PADDING
