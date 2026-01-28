@@ -44,11 +44,7 @@ fun MovieCard(
     modifier: Modifier = Modifier,
     onMovieClick: () -> Unit
 ) {
-    val posterUrl = if (posterPath.isNotEmpty()) {
-        "https://image.tmdb.org/t/p/w300$posterPath"
-    } else {
-        ""
-    }
+
 
     Card(
         shape = CARD_SHAPE,
@@ -63,7 +59,7 @@ fun MovieCard(
                 .padding(LARGE_PADDING)
         ) {
             AsyncImage(
-                model = posterUrl,
+                model = posterPath,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
