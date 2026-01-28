@@ -2,17 +2,22 @@ package com.task.movies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.task.data.dataSource.local.db.entity.SavedMovieEntity
 import com.task.data.reposiory.MovieRepository
+import com.task.data.reposiory.SavedMovieRepository
+import com.task.model.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MoviesViewModel @Inject constructor(
-    private val repository: MovieRepository
+    private val repository: MovieRepository,
+    private val savedRepository: SavedMovieRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MoviesUiState>(MoviesUiState.Loading)
@@ -69,5 +74,22 @@ class MoviesViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun isMovieSaved(movieId: Int) = savedRepository.isSaved(movieId)
+
+    fun toggleSavedMovie(movie: Movie) = viewModelScope.launch {
+        val entity = SavedMovieEntity(
+            id = movie.id,
+            title = movie.title,
+            posterPath = movie.posterPath.orEmpty(),
+            releaseDate = movie.releaseDate,
+            voteAverage = movie.voteAverage.toFloat()
+        )
+
+        val isSaved = savedRepository.isSaved(movie.id)
+            .first()
+        if (isSaved) savedRepository.removeMovie(entity)
+        else savedRepository.saveMovie(entity)
     }
 }

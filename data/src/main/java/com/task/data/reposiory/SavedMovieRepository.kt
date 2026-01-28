@@ -10,7 +10,6 @@ import javax.inject.Singleton
 class SavedMovieRepository @Inject constructor(
     private val dao: MovieDao
 ) {
-
     fun getSavedMovies(): Flow<List<SavedMovieEntity>> = dao.getAllSavedMovies()
 
     suspend fun saveMovie(movie: SavedMovieEntity) = dao.insertMovie(movie)

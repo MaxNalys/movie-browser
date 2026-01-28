@@ -2,25 +2,17 @@ package com.task.movie_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.task.data.dataSource.local.db.entity.SavedMovieEntity
 import com.task.data.reposiory.MovieRepository
+import com.task.data.reposiory.SavedMovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @HiltViewModel
 class MovieDetailsViewModel @Inject constructor(
-    private val repository: MovieRepository
+    private val repository: MovieRepository,
+    private val savedRepository: SavedMovieRepository
 ) : ViewModel() {
 
     private val _movieId = MutableStateFlow<Int?>(null)
@@ -32,13 +24,9 @@ class MovieDetailsViewModel @Inject constructor(
         .flatMapLatest { movieId ->
             flow {
                 emit(MovieDetailsUiState.Loading)
-
                 val allGenres = repository.getGenres()
-
                 val movie = repository.getMovieDetails(movieId)
-
                 val movieGenres = allGenres.filter { genre -> movie.genreIds.contains(genre.id) }
-
                 emit(MovieDetailsUiState.Success(movie, movieGenres))
             }.catch { e ->
                 emit(MovieDetailsUiState.Error(e.message))
@@ -49,6 +37,21 @@ class MovieDetailsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = MovieDetailsUiState.Loading
         )
+
+    fun isMovieSaved(movieId: Int) = savedRepository.isSaved(movieId)
+
+    fun toggleSavedMovie(movie: com.task.model.Movie) = viewModelScope.launch {
+        val entity = SavedMovieEntity(
+            id = movie.id,
+            title = movie.title,
+            posterPath = movie.posterPath.orEmpty(),
+            releaseDate = movie.releaseDate,
+            voteAverage = movie.voteAverage.toFloat()
+        )
+        val saved = savedRepository.isSaved(movie.id).first()
+        if (saved) savedRepository.removeMovie(entity)
+        else savedRepository.saveMovie(entity)
+    }
 
     fun load(movieId: Int) {
         _movieId.value = movieId

@@ -3,6 +3,7 @@ package com.task.ui.cards
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,18 +12,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.task.designsystem.constants.Elevations
 import com.task.designsystem.constants.Paddings.LARGE_PADDING
@@ -32,6 +37,9 @@ import com.task.designsystem.constants.Paddings.TINY_PADDING
 import com.task.designsystem.constants.Ratio
 import com.task.designsystem.constants.Shapes.CARD_SHAPE
 import com.task.designsystem.theme.MovieBrowserTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 
 
 @Composable
@@ -43,18 +51,16 @@ fun MovieDetailCard(
     overview: String,
     rating: Float,
     voteCount: Int,
-    modifier: Modifier = Modifier,
-    onCardClick: () -> Unit
+    isSaved: Boolean,
+    onCardClick: () -> Unit,
+    onSaveClick: () -> Unit
 ) {
-    val posterUrl = if (posterPath.isNotEmpty()) {
-        "https://image.tmdb.org/t/p/w300$posterPath"
-    } else {
-        ""
-    }
+
+
     Card(
         shape = CARD_SHAPE,
         elevation = CardDefaults.cardElevation(defaultElevation = Elevations.CARD_ELEVATION),
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .clickable { onCardClick() }
     ) {
@@ -64,14 +70,28 @@ fun MovieDetailCard(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(LARGE_PADDING)
         ) {
-            AsyncImage(
-                model = posterUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(Ratio.IMAGE_RATIO)
-                    .clip(CARD_SHAPE)
-            )
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                AsyncImage(
+                    model = posterPath,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(Ratio.IMAGE_RATIO)
+                        .clip(CARD_SHAPE)
+                )
+
+                Icon(
+                    imageVector = if (isSaved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Save movie",
+                    tint = if (isSaved) Color.Red else Color.White,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(MEDIUM_PADDING)
+                        .size(32.dp)
+                        .clickable { onSaveClick() }
+                )
+            }
 
             Spacer(modifier = Modifier.height(MEDIUM_PADDING))
 
@@ -100,7 +120,6 @@ fun MovieDetailCard(
 
             Spacer(modifier = Modifier.height(SMALL_PADDING))
 
-
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(SMALL_PADDING),
                 modifier = Modifier.fillMaxWidth()
@@ -120,6 +139,7 @@ fun MovieDetailCard(
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(SMALL_PADDING))
 
             Text(
@@ -131,8 +151,6 @@ fun MovieDetailCard(
             )
 
             Spacer(modifier = Modifier.height(MEDIUM_PADDING))
-
-            Spacer(modifier = Modifier.width(SMALL_PADDING))
 
             Text(
                 text = "($voteCount votes)",
@@ -155,8 +173,10 @@ fun MovieDetailCardPreview() {
             genres = listOf("Horror", "Thriller"),
             overview = "Following the latest Ghostface killings, the four survivors leave Woodsboro behind and start a fresh chapter.",
             rating = 7.374f,
+            isSaved = true,
             voteCount = 684,
-            onCardClick = {}
+            onCardClick = {},
+            onSaveClick = {}
         )
     }
 }

@@ -1,21 +1,11 @@
 package com.task.movies
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,12 +14,12 @@ import com.task.designsystem.component.SimpleLoadingIndicator
 import com.task.designsystem.constants.Paddings.MEDIUM_PADDING
 import com.task.designsystem.constants.Paddings.XX_LARGE_PADDING
 import com.task.designsystem.constants.Paddings.X_LARGE_PADDING
+import com.task.model.Movie
 import com.task.ui.cards.MovieCard
-
 
 @Composable
 fun MoviesScreen(
-    onMovieClick: (com.task.model.Movie) -> Unit,
+    onMovieClick: (Movie) -> Unit,
     onSeeAllClick: (MovieListType) -> Unit,
     viewModel: MoviesViewModel = hiltViewModel()
 ) {
@@ -51,7 +41,8 @@ fun MoviesScreen(
                         movies = state.trending,
                         onMovieClick = onMovieClick,
                         onSeeAllClick = { onSeeAllClick(MovieListType.TRENDING) },
-                        loadNextPage = { viewModel.loadNextPage(MovieListType.TRENDING) }
+                        loadNextPage = { viewModel.loadNextPage(MovieListType.TRENDING) },
+                        viewModel = viewModel
                     )
 
                     Spacer(Modifier.height(X_LARGE_PADDING))
@@ -61,7 +52,8 @@ fun MoviesScreen(
                         movies = state.popular,
                         onMovieClick = onMovieClick,
                         onSeeAllClick = { onSeeAllClick(MovieListType.POPULAR) },
-                        loadNextPage = { viewModel.loadNextPage(MovieListType.POPULAR) }
+                        loadNextPage = { viewModel.loadNextPage(MovieListType.POPULAR) },
+                        viewModel = viewModel
                     )
                 }
             }
@@ -70,7 +62,7 @@ fun MoviesScreen(
                 val state = uiState as MoviesUiState.Error
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(text = state.message ?: stringResource(R.string.error))
                 }
@@ -78,14 +70,14 @@ fun MoviesScreen(
         }
     }
 }
-
 @Composable
 fun MoviesSection(
     title: String,
-    movies: List<com.task.model.Movie>,
-    onMovieClick: (com.task.model.Movie) -> Unit,
+    movies: List<Movie>,
+    onMovieClick: (Movie) -> Unit,
     onSeeAllClick: () -> Unit,
-    loadNextPage: () -> Unit = {}
+    loadNextPage: () -> Unit = {},
+    viewModel: MoviesViewModel
 ) {
     Column {
         Row(
@@ -93,17 +85,25 @@ fun MoviesSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(title)
-            TextButton(onClick = onSeeAllClick) { Text(stringResource(R.string.see_all_btn)) }
+            TextButton(onClick = onSeeAllClick) {
+                Text(stringResource(R.string.see_all_btn))
+            }
         }
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(MEDIUM_PADDING)) {
             items(movies) { movie ->
+                // 🔹 Локальний стан сердечка
+                val isSavedFlow = viewModel.isMovieSaved(movie.id)
+                val isSaved by isSavedFlow.collectAsState(initial = false)
+
                 MovieCard(
                     posterPath = movie.posterPath.orEmpty(),
                     title = movie.title,
                     year = movie.releaseDate,
                     rating = movie.voteAverage.toFloat(),
-                    onMovieClick = { onMovieClick(movie) }
+                    isSaved = isSaved,
+                    onMovieClick = { onMovieClick(movie) },
+                    onSaveClick = { viewModel.toggleSavedMovie(movie) }
                 )
             }
 

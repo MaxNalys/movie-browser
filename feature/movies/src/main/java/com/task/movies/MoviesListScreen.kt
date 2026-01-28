@@ -3,10 +3,7 @@ package com.task.movies
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -46,38 +44,29 @@ fun MoviesListScreen(
 
         IconButton(
             onClick = onBack,
-            modifier = Modifier
-                .padding(LARGE_PADDING)
-                .align(Alignment.TopStart)
-                .zIndex(1f)
+            modifier = Modifier.padding(LARGE_PADDING).align(Alignment.TopStart).zIndex(1f)
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.onSurface
-
             )
         }
 
         when (uiState) {
-
-            is MoviesUiState.Loading -> {
-                SimpleLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+            is MoviesUiState.Loading -> SimpleLoadingIndicator(modifier = Modifier.align(Alignment.Center))
 
             is MoviesUiState.Success -> {
                 val state = uiState as MoviesUiState.Success
-                val movies =
-                    if (type == MovieListType.TRENDING) state.trending else state.popular
+                val movies = if (type == MovieListType.TRENDING) state.trending else state.popular
 
                 LaunchedEffect(listState) {
-                    snapshotFlow {
-                        listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                    }.collect { lastVisibleIndex ->
-                        if (lastVisibleIndex != null && lastVisibleIndex >= movies.size - 3) {
-                            viewModel.loadNextPage(type)
+                    snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+                        .collect { lastVisibleIndex ->
+                            if (lastVisibleIndex != null && lastVisibleIndex >= movies.size - 3) {
+                                viewModel.loadNextPage(type)
+                            }
                         }
-                    }
                 }
 
                 LazyColumn(
@@ -90,30 +79,18 @@ fun MoviesListScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(
-                        items = movies,
-                        key = { it.id }
-                    ) { movie ->
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            MovieCard(
-                                posterPath = movie.posterPath.orEmpty(),
-                                title = movie.title,
-                                year = movie.releaseDate,
-                                rating = movie.voteAverage.toFloat(),
-                                onMovieClick = { onMovieClick(movie.id) }
-                            )
-                        }
-                    }
+                    items(movies, key = { it.id }) { movie ->
+                        val isSaved by viewModel.isMovieSaved(movie.id)
+                            .collectAsState(initial = false)
 
-                    item {
-                        Spacer(modifier = Modifier.height(LARGE_PADDING))
-                        SimpleLoadingIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
+                        MovieCard(
+                            posterPath = movie.posterPath.orEmpty(),
+                            title = movie.title,
+                            year = movie.releaseDate,
+                            rating = movie.voteAverage.toFloat(),
+                            isSaved = isSaved,
+                            onMovieClick = { onMovieClick(movie.id) },
+                            onSaveClick = { viewModel.toggleSavedMovie(movie) }
                         )
                     }
                 }
@@ -121,12 +98,10 @@ fun MoviesListScreen(
 
             is MoviesUiState.Error -> {
                 val state = uiState as MoviesUiState.Error
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = state.message ?: stringResource(R.string.error))
-                }
+                Text(
+                    text = state.message ?: stringResource(R.string.error),
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
