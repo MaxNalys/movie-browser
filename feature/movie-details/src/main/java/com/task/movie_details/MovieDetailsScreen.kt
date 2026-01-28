@@ -1,12 +1,15 @@
 package com.task.movie_details
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -14,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.task.designsystem.component.SimpleLoadingIndicator
 import com.task.ui.cards.MovieDetailCard
 import com.task.movies.R
+import com.task.designsystem.constants.Paddings.SMALL_PADDING
 
 @Composable
 fun MovieDetailsScreen(
@@ -48,27 +52,36 @@ fun MovieDetailsScreen(
                 val movie = state.movie
                 val genreNames = state.genres.map { it.name }
 
-                MovieDetailCard(
-                    posterPath = movie.posterPath.orEmpty(),
-                    title = movie.title,
-                    releaseDate = movie.releaseDate,
-                    overview = movie.overview,
-                    rating = movie.voteAverage.toFloat(),
-                    voteCount = movie.voteCount,
-                    genres = genreNames,
-                    isSaved = isSaved,
-                    onCardClick = {},
-                    onSaveClick = { movieState?.let { viewModel.toggleSavedMovie(it) } }
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(SMALL_PADDING)
+                ) {
+                    MovieDetailCard(
+                        posterPath = movie.posterPath.orEmpty(),
+                        title = movie.title,
+                        releaseDate = movie.releaseDate,
+                        overview = movie.overview,
+                        rating = movie.voteAverage.toFloat(),
+                        voteCount = movie.voteCount,
+                        genres = genreNames,
+                        isSaved = isSaved,
+                        onCardClick = {},
+                        onSaveClick = { movieState?.let { viewModel.toggleSavedMovie(it) } }
+                    )
+                }
 
                 IconButton(
                     onClick = { viewModel.onEvent(MovieDetailsEvent.OnBackClick); onBack() },
-                    modifier = Modifier.padding(16.dp).align(Alignment.TopStart)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopStart)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = Color.LightGray
                     )
                 }
             }

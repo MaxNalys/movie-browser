@@ -44,16 +44,15 @@ fun MovieCard(
     ) {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
                 .padding(LARGE_PADDING)
         ) {
 
-            Box(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.width(300.dp)) {
                 AsyncImage(
                     model = posterPath,
                     contentDescription = title,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .width(300.dp)
                         .height(250.dp)
                         .aspectRatio(IMAGE_RATIO)
                         .clip(CARD_SHAPE)
@@ -78,7 +77,7 @@ fun MovieCard(
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurface
+                color = Color.LightGray
             )
 
             Spacer(modifier = Modifier.height(SMALL_PADDING))
@@ -92,8 +91,7 @@ fun MovieCard(
                 Text(
                     text = year,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    color = Color.LightGray                )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val fullStars = rating.toInt()
@@ -103,7 +101,7 @@ fun MovieCard(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = Color.LightGray
                         )
                     }
 
@@ -111,7 +109,7 @@ fun MovieCard(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                            tint = Color.LightGray.copy(alpha = 0.5f)
                         )
                     }
                 }

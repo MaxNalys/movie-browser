@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.task.designsystem.constants.Paddings.LARGE_PADDING
 import com.task.ui.cards.MovieCard
 
 @Composable
@@ -49,7 +50,10 @@ fun SavedMoviesScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(top = 45.dp,
+                    start = 50.dp,
+                    end = LARGE_PADDING,
+                    bottom = LARGE_PADDING),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(savedMovies, key = { it.id }) { movie ->
@@ -60,7 +64,7 @@ fun SavedMoviesScreen(
                         rating = movie.voteAverage.toFloat(),
                         isSaved = true,
                         onMovieClick = { onMovieClick(movie.id) },
-                        onSaveClick = { viewModel.removeMovie(movie) }                    )
+                        onSaveClick = { viewModel.removeMovie(movie) })
                 }
             }
         }
