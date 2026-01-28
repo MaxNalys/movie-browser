@@ -5,13 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.task.data.reposiory.MovieRepository
 import com.task.model.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val repository: MovieRepository
 ) : ViewModel() {
 
@@ -24,12 +25,12 @@ class MainActivityViewModel @Inject constructor(
 
     private fun loadMovies() {
         viewModelScope.launch {
-            runCatching {
-                repository.getTrendingMovies(1)
-            }.onSuccess {
-                _movies.value = it
-            }.onFailure {
-                it.printStackTrace()
+            try {
+                val trending = repository.getTrendingMovies(1)
+                val popular = repository.getPopularMovies(1)
+                _movies.value = (trending + popular).distinctBy { it.id }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

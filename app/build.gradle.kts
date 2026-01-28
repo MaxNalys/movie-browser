@@ -49,9 +49,10 @@ dependencies {
 
     implementation(project(":core:network"))
     implementation(project(":core:model"))
+
     implementation(project(":data"))
     implementation(project(":feature:movies"))
-
+    implementation(project(":feature:movie-details"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

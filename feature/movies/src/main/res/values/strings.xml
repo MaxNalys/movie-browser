@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="error">Error</string>
-    <string name="movie_section_trending">Trending Movies</string>
+    <string name="error">Unknown error</string>
     <string name="see_all_btn">See all</string>
+    <string name="movie_section_popular">Popular</string>
+    <string name="movie_section_trending">Trending</string>
+    <string name="back">Back</string>
 </resources>

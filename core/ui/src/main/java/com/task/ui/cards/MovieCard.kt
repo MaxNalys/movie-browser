@@ -2,6 +2,7 @@ package com.task.ui.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -37,14 +37,19 @@ import com.task.designsystem.theme.MovieBrowserTheme
 
 @Composable
 fun MovieCard(
-    posterUrl: String,
+    posterPath: String,
     title: String,
-    overview: String,
-    isSaved: Boolean,
+    year: String,
+    rating: Float,
     modifier: Modifier = Modifier,
-    onMovieClick: () -> Unit,
-    onSaveClick: () -> Unit
+    onMovieClick: () -> Unit
 ) {
+    val posterUrl = if (posterPath.isNotEmpty()) {
+        "https://image.tmdb.org/t/p/w300$posterPath"
+    } else {
+        ""
+    }
+
     Card(
         shape = CARD_SHAPE,
         elevation = CardDefaults.cardElevation(CARD_ELEVATION),
@@ -57,10 +62,9 @@ fun MovieCard(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(LARGE_PADDING)
         ) {
-
             AsyncImage(
                 model = posterUrl,
-                contentDescription = title,
+                contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp)
@@ -72,58 +76,70 @@ fun MovieCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
 
+
                 Spacer(modifier = Modifier.width(SMALL_PADDING))
 
-                Icon(
-                    imageVector = if (isSaved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Save movie",
-                    tint = if (isSaved)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .clickable { onSaveClick() }
-                )
+
             }
 
             Spacer(modifier = Modifier.height(SMALL_PADDING))
 
-            Text(
-                text = overview,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = year,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-            Spacer(modifier = Modifier.height(SMALL_PADDING))
-
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val fullStars = rating.toInt()
+                    val halfStar = (rating % 1 >= 0.5f)
+                    repeat(fullStars) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    if (halfStar) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
+@Preview(showBackground = true)
 fun MovieCardPreview() {
-    MovieBrowserTheme {
+    MovieBrowserTheme() {
         MovieCard(
-            posterUrl = "https://image.tmdb.org/t/p/w300/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg",
+            posterPath = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDI5LWFmNTEtODM1ZTI2ZDJmZjBhXkEyXkFqcGdeQXVyNDYyMDk5MTU@._V1_FMjpg_UX1000_.jpg",
             title = "The Matrix",
-            overview = "A computer hacker learns about the true nature of his reality.",
-            isSaved = false,
-            onMovieClick = {},
-            onSaveClick = {}
+            year = "1999",
+            rating = 4.5f,
+            onMovieClick = {}
         )
     }
 }

@@ -5,15 +5,16 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
-class MovieBrowserState(
+
+class MovieAppState(
     val navController: NavHostController
 )
 
 @Composable
-fun rememberMovieBrowserState(
+fun rememberMovieAppState(
     navController: NavHostController = rememberNavController()
-): MovieBrowserState {
+): MovieAppState {
     return remember(navController) {
-        MovieBrowserState(navController)
+        MovieAppState(navController)
     }
 }

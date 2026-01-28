@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:designsystem"))
 
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.navigation.compose)
     implementation(libs.compose.ui)
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.runtime)
+    implementation(libs.androidx.navigation.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

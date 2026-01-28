@@ -1,6 +1,5 @@
 package com.task.movies
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,39 +23,57 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.task.designsystem.component.SimpleLoadingIndicator
 import com.task.designsystem.constants.Paddings.MEDIUM_PADDING
 import com.task.designsystem.constants.Paddings.XX_LARGE_PADDING
-import com.task.model.Movie
+import com.task.designsystem.constants.Paddings.X_LARGE_PADDING
 import com.task.ui.cards.MovieCard
+
 
 @Composable
 fun MoviesScreen(
-    onMovieClick: (Movie) -> Unit,
-    onSeeAllClick: () -> Unit,
+    onMovieClick: (com.task.model.Movie) -> Unit,
+    onSeeAllClick: (MovieListType) -> Unit,
     viewModel: MoviesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         when (uiState) {
+            is MoviesUiState.Loading -> SimpleLoadingIndicator()
 
-            MoviesUiState.Loading -> {
-                SimpleLoadingIndicator()
+            is MoviesUiState.Success -> {
+                val state = uiState as MoviesUiState.Success
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(XX_LARGE_PADDING)
+                ) {
+                    MoviesSection(
+                        title = stringResource(R.string.movie_section_trending),
+                        movies = state.trending,
+                        onMovieClick = onMovieClick,
+                        onSeeAllClick = { onSeeAllClick(MovieListType.TRENDING) },
+                        loadNextPage = { viewModel.loadNextPage(MovieListType.TRENDING) }
+                    )
+
+                    Spacer(Modifier.height(X_LARGE_PADDING))
+
+                    MoviesSection(
+                        title = stringResource(R.string.movie_section_popular),
+                        movies = state.popular,
+                        onMovieClick = onMovieClick,
+                        onSeeAllClick = { onSeeAllClick(MovieListType.POPULAR) },
+                        loadNextPage = { viewModel.loadNextPage(MovieListType.POPULAR) }
+                    )
+                }
             }
 
             is MoviesUiState.Error -> {
-                Text(
-                    text = (uiState as MoviesUiState.Error).message
-                        ?: stringResource(R.string.error)
-                )
-            }
-
-            is MoviesUiState.Success -> {
-                MoviesSection(
-                    title = stringResource(R.string.movie_section_trending),
-                    movies = (uiState as MoviesUiState.Success).movies,
-                    onMovieClick = onMovieClick,
-                    onSeeAllClick = onSeeAllClick,
-                    loadNextPage = viewModel::loadNextPage
-                )
+                val state = uiState as MoviesUiState.Error
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    Text(text = state.message ?: stringResource(R.string.error))
+                }
             }
         }
     }
@@ -65,41 +82,28 @@ fun MoviesScreen(
 @Composable
 fun MoviesSection(
     title: String,
-    movies: List<Movie>,
-    onMovieClick: (Movie) -> Unit,
+    movies: List<com.task.model.Movie>,
+    onMovieClick: (com.task.model.Movie) -> Unit,
     onSeeAllClick: () -> Unit,
-    loadNextPage: () -> Unit
+    loadNextPage: () -> Unit = {}
 ) {
-    Column(
-        Modifier.padding(XX_LARGE_PADDING)
-    ) {
-
+    Column {
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = title)
-
-            Text(
-                text = stringResource(R.string.see_all_btn),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { onSeeAllClick() }
-            )
+            Text(title)
+            TextButton(onClick = onSeeAllClick) { Text(stringResource(R.string.see_all_btn)) }
         }
 
-        Spacer(Modifier.height(MEDIUM_PADDING))
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(MEDIUM_PADDING)
-        ) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(MEDIUM_PADDING)) {
             items(movies) { movie ->
                 MovieCard(
-                    posterUrl = movie.posterPath.orEmpty(),
+                    posterPath = movie.posterPath.orEmpty(),
                     title = movie.title,
-                    overview = movie.overview,
-                    isSaved = false,
-                    onMovieClick = { onMovieClick(movie) },
-                    onSaveClick = {}
+                    year = movie.releaseDate,
+                    rating = movie.voteAverage.toFloat(),
+                    onMovieClick = { onMovieClick(movie) }
                 )
             }
 

@@ -1,5 +1,6 @@
 package com.task.data.dataSource.remote.tmdbApi
 
+import com.task.data.dataSource.remote.tmdbApi.model.GenreResponse
 import com.task.data.dataSource.remote.tmdbApi.model.MovieDto
 import com.task.data.dataSource.remote.tmdbApi.model.MovieResponse
 import retrofit2.http.GET
@@ -14,6 +15,13 @@ interface TmdbApiService {
         @Query("page") page: Int
     ): MovieResponse
 
+    @GET("movie/popular")
+    suspend fun getPopularMovies(
+        @Query("page") page: Int
+    ): MovieResponse
+
+    @GET("genre/movie/list")
+    suspend fun getGenres(): GenreResponse
 
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
