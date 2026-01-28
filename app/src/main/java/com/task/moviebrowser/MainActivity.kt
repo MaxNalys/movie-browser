@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import com.task.designsystem.theme.MovieBrowserTheme
-import com.task.moviebrowser.navigation.MovieAppNavHost
+import com.task.moviebrowser.navigation.MovieAppScreen
 import com.task.moviebrowser.ui.rememberMovieAppState
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider {
                 MovieBrowserTheme {
-                    MovieAppNavHost(appState = appState)
+                    MovieAppScreen(appState = appState)
                 }
             }
         }

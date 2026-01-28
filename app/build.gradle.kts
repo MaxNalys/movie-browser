@@ -53,6 +53,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":feature:movies"))
     implementation(project(":feature:movie-details"))
+    implementation(project(":feature:saved"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

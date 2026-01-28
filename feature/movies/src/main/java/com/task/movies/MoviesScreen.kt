@@ -1,6 +1,7 @@
 package com.task.movies
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -25,17 +26,18 @@ fun MoviesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        when (uiState) {
-            is MoviesUiState.Loading -> SimpleLoadingIndicator()
+    when (uiState) {
+        is MoviesUiState.Loading -> SimpleLoadingIndicator()
 
-            is MoviesUiState.Success -> {
-                val state = uiState as MoviesUiState.Success
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(XX_LARGE_PADDING)
-                ) {
+        is MoviesUiState.Success -> {
+            val state = uiState as MoviesUiState.Success
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(XX_LARGE_PADDING),
+                verticalArrangement = Arrangement.spacedBy(X_LARGE_PADDING)
+            ) {
+                item {
                     MoviesSection(
                         title = stringResource(R.string.movie_section_trending),
                         movies = state.trending,
@@ -44,9 +46,9 @@ fun MoviesScreen(
                         loadNextPage = { viewModel.loadNextPage(MovieListType.TRENDING) },
                         viewModel = viewModel
                     )
+                }
 
-                    Spacer(Modifier.height(X_LARGE_PADDING))
-
+                item {
                     MoviesSection(
                         title = stringResource(R.string.movie_section_popular),
                         movies = state.popular,
@@ -57,15 +59,15 @@ fun MoviesScreen(
                     )
                 }
             }
+        }
 
-            is MoviesUiState.Error -> {
-                val state = uiState as MoviesUiState.Error
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = state.message ?: stringResource(R.string.error))
-                }
+        is MoviesUiState.Error -> {
+            val state = uiState as MoviesUiState.Error
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = state.message ?: stringResource(R.string.error))
             }
         }
     }

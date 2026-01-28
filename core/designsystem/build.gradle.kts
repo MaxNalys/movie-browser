@@ -43,4 +43,5 @@ dependencies {
     implementation(libs.compose.runtime)
 
     implementation(libs.coil.kt.compose)
+    implementation(libs.androidx.navigation.runtime.ktx)
 }
